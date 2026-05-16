@@ -1,6 +1,7 @@
 package pl.commercelink.payments.paynow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import pl.commercelink.payments.api.PaymentLink;
 import pl.commercelink.payments.api.PaymentProvider;
 import pl.commercelink.payments.api.PaymentRequest;
 import pl.commercelink.payments.api.PaymentWebhookRequest;
@@ -38,7 +39,7 @@ class PaynowPaymentProvider implements PaymentProvider {
     }
 
     @Override
-    public String createPaymentLink(PaymentRequest request) {
+    public PaymentLink createPaymentLink(PaymentRequest request) {
         int amount = request.lineItems().stream().mapToInt(i -> i.amount() * i.quantity()).sum();
         if (request.shippingItem() != null) {
             amount += request.shippingItem().amount();
@@ -65,7 +66,7 @@ class PaynowPaymentProvider implements PaymentProvider {
                 throw new RuntimeException("Unexpected payment status: " + response.getStatus());
             }
 
-            return response.getRedirectUrl();
+            return new PaymentLink(response.getRedirectUrl(), "GET", null);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
