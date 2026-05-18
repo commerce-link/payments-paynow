@@ -2,6 +2,8 @@ package pl.commercelink.payments.paynow;
 
 import pl.commercelink.payments.api.PaymentProvider;
 import pl.commercelink.payments.api.PaymentProviderDescriptor;
+import pl.commercelink.provider.api.EventBinding;
+import pl.commercelink.provider.api.EventBinding.WebhookBinding;
 import pl.commercelink.provider.api.ProviderField;
 
 import java.util.List;
@@ -34,5 +36,10 @@ public class PaynowPaymentProviderDescriptor implements PaymentProviderDescripto
     @Override
     public PaymentProvider create(Map<String, String> configuration) {
         return new PaynowPaymentProvider(configuration);
+    }
+
+    @Override
+    public List<EventBinding<?>> bindings() {
+        return List.of(new WebhookBinding<>("paynow", String.class));
     }
 }
