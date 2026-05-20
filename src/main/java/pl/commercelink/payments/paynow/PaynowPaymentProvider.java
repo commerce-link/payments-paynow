@@ -1,41 +1,18 @@
 package pl.commercelink.payments.paynow;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.commercelink.payments.api.PaymentLink;
 import pl.commercelink.payments.api.PaymentProvider;
 import pl.commercelink.payments.api.PaymentRequest;
-import pl.commercelink.payments.api.PaymentWebhookRequest;
-import pl.commercelink.payments.api.PaymentWebhookResult;
 
 import java.util.Map;
 
 class PaynowPaymentProvider implements PaymentProvider {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
     private final PaynowApiClient apiClient;
-    private final PaynowSecrets secrets;
 
     PaynowPaymentProvider(Map<String, String> configuration) {
-        this.secrets = new PaynowSecrets(configuration.get("apiKey"), configuration.get("signingSecret"));
+        PaynowSecrets secrets = new PaynowSecrets(configuration.get("apiKey"), configuration.get("signingSecret"));
         this.apiClient = new PaynowApiClient(secrets, configuration.get("apiUrl"));
-    }
-
-    @Override
-    public PaymentWebhookResult processWebhook(PaymentWebhookRequest request) {
-        try {
-            PaynowWebhookPayload payload = OBJECT_MAPPER.readValue(request.payload(), PaynowWebhookPayload.class);
-            if (payload.getStatus() != PaymentStatus.CONFIRMED) {
-                return new PaymentWebhookResult(null, null, 0, false);
-            }
-
-            String signature = request.getHeader("Signature");
-            PaynowSignature.verify(secrets, request.payload(), signature);
-
-            return new PaymentWebhookResult(payload.getExternalId(), payload.getPaymentId(), 0, true);
-        } catch (Exception e) {
-            throw new RuntimeException("Error processing webhook: " + e.getMessage(), e);
-        }
     }
 
     @Override
