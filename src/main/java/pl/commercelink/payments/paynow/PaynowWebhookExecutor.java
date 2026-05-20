@@ -5,12 +5,15 @@ import pl.commercelink.payments.api.PaymentWebhookResult;
 import pl.commercelink.provider.api.WebhookContext;
 import pl.commercelink.provider.api.WebhookExecutor;
 
-class PaynowWebhookExecutor implements WebhookExecutor<String, PaymentWebhookResult> {
+class PaynowWebhookExecutor implements WebhookExecutor<PaymentWebhookResult> {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Override
     public PaymentWebhookResult execute(String payload, WebhookContext ctx) {
+        if (payload == null || payload.isBlank()) {
+            return null;
+        }
         try {
             PaynowWebhookPayload parsed = OBJECT_MAPPER.readValue(payload, PaynowWebhookPayload.class);
             if (parsed.getStatus() != PaymentStatus.CONFIRMED) {

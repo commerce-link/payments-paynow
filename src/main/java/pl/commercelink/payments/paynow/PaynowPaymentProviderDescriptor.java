@@ -40,6 +40,6 @@ public class PaynowPaymentProviderDescriptor implements PaymentProviderDescripto
 
     @Override
     public List<EventBinding<?>> bindings() {
-        return List.of(new WebhookBinding<>("paynow", String.class, new PaynowWebhookExecutor()));
+        return List.of(new WebhookBinding<>("paynow", new PaynowWebhookExecutor()));
     }
 }
